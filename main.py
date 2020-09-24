@@ -107,6 +107,7 @@ def detectAndQueue(hexKey, col, green, blue, arr):
         if(arr[i][col][1] >= green and arr[i][col][2] >= blue):
             holdState[hexKey] = True
             queueKey(hexKey)
+            return
 
 
 def threadTakePicture():
