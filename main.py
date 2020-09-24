@@ -104,7 +104,7 @@ def detectAndQueue(hexKey, col, green, blue, arr):
 
     holdState[hexKey] = False
     for i in range(len(arr)):
-        if(arr[i][col][1] == green and arr[i][col][2] == blue):
+        if(arr[i][col][1] >= green and arr[i][col][2] >= blue):
             holdState[hexKey] = True
             queueKey(hexKey)
 
@@ -121,8 +121,8 @@ def threadTakePicture():
         detectAndQueue(0x4B, 344, 186, 255, area)
         pressAllInQueue()
         releaseAllInQueue()
-        print("Frame took {} seconds. Up to frame no {}".format(
-            (time.time() - startTime), "SIGH"))
+        print("Frame took {} seconds.".format(
+            (time.time() - startTime)))
 
 
 threadTakePicture()
