@@ -58,12 +58,14 @@ LPINPUT = ctypes.POINTER(INPUT)
 
 
 def PressKey(hexKeyCode):
+    time.sleep(0.0001)
     x = INPUT(type=INPUT_KEYBOARD,
               ki=KEYBDINPUT(wVk=hexKeyCode))
     user32.SendInput(1, ctypes.byref(x), ctypes.sizeof(x))
 
 
 def ReleaseKey(hexKeyCode):
+    time.sleep(0.0001)
     x = INPUT(type=INPUT_KEYBOARD,
               ki=KEYBDINPUT(wVk=hexKeyCode,
                             dwFlags=KEYEVENTF_KEYUP))
@@ -98,28 +100,42 @@ def releaseAllInQueue():
             releaseQueue.add(i)
             return
         ReleaseKey(i)
+        holdState[i] = False
 
 
 def detectAndQueue(hexKey, col, green, blue, arr):
 
-    holdState[hexKey] = False
     for i in range(len(arr)):
-        if(arr[i][col][1] >= green and arr[i][col][2] >= blue):
-            holdState[hexKey] = True
-            queueKey(hexKey)
-            return
+        if(arr[i][col][1] == green and arr[i][col][2] == blue):
+            if holdState[hexKey] == True:
+                for j in range(5, 55):
+                    if not arr[j][col][1] == green:
+                        holdState[hexKey] = False
+                        ReleaseKey(hexKey)
+                        holdState[hexKey] = True
+                        queueKey(hexKey)
+                        return
+                holdState[hexKey] = True
+                return
+            else:
+                holdState[hexKey] = True
+                queueKey(hexKey)
+                return
+
+    holdState[hexKey] = False
 
 
 def threadTakePicture():
+
     while(True):
         area = []
         startTime = time.time()
         img = ImageGrab.grab(bbox=coords)
         area = numpy.array(img)
-        detectAndQueue(0x44, 10, 186, 255, area)
-        detectAndQueue(0x46, 118, 255, 144, area)
-        detectAndQueue(0x4A, 231, 255, 144, area)
-        detectAndQueue(0x4B, 344, 186, 255, area)
+        detectAndQueue(0x44, 50, 186, 255, area)
+        detectAndQueue(0x46, 168, 255, 144, area)
+        detectAndQueue(0x4A, 281, 255, 144, area)
+        detectAndQueue(0x4B, 394, 186, 255, area)
         pressAllInQueue()
         releaseAllInQueue()
         print("Frame took {} seconds.".format(
